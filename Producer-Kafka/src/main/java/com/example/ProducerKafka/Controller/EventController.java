@@ -16,12 +16,11 @@ public class EventController {
     @Autowired
     private KafkaMessagePublisher publisher;
 
-    @GetMapping("/publish/{message}")
-    public ResponseEntity<?> publishMessage(@PathVariable String message) {
+    @GetMapping("/publish/{key}/{message}")
+    public ResponseEntity<?> publishMessage(@PathVariable String key,@PathVariable String message) {
         try {
-            for (int i = 0; i <= 10000; i++) {
-                publisher.sendMessageToTopic(message + " : " + i);
-            }
+                publisher.sendMessageToTopic(key,message);
+
             return ResponseEntity.ok("message published successfully ..");
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

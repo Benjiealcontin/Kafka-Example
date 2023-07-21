@@ -1,5 +1,6 @@
 package com.example.ProducerKafka.Service;
 
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -13,17 +14,22 @@ public class KafkaMessagePublisher {
     @Autowired
     private KafkaTemplate<String,Object> template;
 
-    public void sendMessageToTopic(String message){
-        CompletableFuture<SendResult<String, Object>> future = template.send("test", message);
-        future.whenComplete((result,ex)->{
+    public void sendMessageToTopic(String key, String message) {
+        CompletableFuture<SendResult<String, Object>> future = template.send("test", key, message);
+        future.whenComplete((result, ex) -> {
             if (ex == null) {
-                System.out.println("Sent message=[" + message +
-                        "] with offset=[" + result.getRecordMetadata().offset() + "]");
+                RecordMetadata metadata = result.getRecordMetadata();
+                System.out.println("Sent message with key=[" + key +
+                        "] and value=[" + message +
+                        "] to partition=[" + metadata.partition() +
+                        "] with offset=[" + metadata.offset() + "]");
             } else {
-                System.out.println("Unable to send message=[" +
-                        message + "] due to : " + ex.getMessage());
+                System.out.println("Unable to send message with key=[" + key +
+                        "] and value=[" + message +
+                        "] due to : " + ex.getMessage());
             }
         });
-
     }
+
+
 }
